@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f0e0c">
 <title>fold.</title>
@@ -26,6 +27,11 @@
 }
 html{height:100%;background:var(--bg)}
 body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;line-height:1.5;overflow-x:hidden;overscroll-behavior:none}
+@media (min-width: 700px){
+  body{display:flex;justify-content:center}
+  .screen{width:100%;max-width:480px;margin:0 auto;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  .tabbar{max-width:480px;left:50%;transform:translateX(-50%)}
+}
 body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.35}
 input,textarea,button{font-family:var(--sans)}
 input[type=file]{display:none}
@@ -149,7 +155,8 @@ input[type=file]{display:none}
 .space-sel{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px}
 .s-chip{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
 .s-chip.sel{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
-.entry-ta{width:100%;min-height:160px;background:transparent;border:none;outline:none;color:var(--t1);font-size:17px;line-height:1.7;resize:none;font-family:var(--serif);font-weight:300}
+.entry-ta{width:100%;min-height:160px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);outline:none;color:var(--t1);font-size:17px;line-height:1.7;resize:none;font-family:var(--serif);font-weight:300;padding:14px 16px;transition:border-color .2s}
+.entry-ta:focus{border-color:var(--gold-border)}
 .entry-ta::placeholder{color:var(--t3);font-style:italic}
 .media-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .mthumb{position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;flex-shrink:0;animation:scaleIn .2s ease}
