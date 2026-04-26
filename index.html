@@ -5,1288 +5,992 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0e0e0e">
+<meta name="theme-color" content="#0f0e0c">
 <title>fold.</title>
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ── RESET & TOKENS ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-:root {
-  --bg: #0e0e0e;
-  --bg2: #161616;
-  --bg3: #1e1e1e;
-  --bg4: #252525;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --t1: #f0ebe3;
-  --t2: rgba(240,235,227,0.55);
-  --t3: rgba(240,235,227,0.28);
-  --gold: #c8a97e;
-  --gold-dim: rgba(200,169,126,0.12);
-  --serif: 'Cormorant', Georgia, serif;
-  --sans: 'DM Sans', sans-serif;
-  --r: 14px;
-  --r-sm: 8px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0e0c;--bg2:#171613;--bg3:#1e1c19;--bg4:#262420;--bg5:#2e2b26;
+  --border:rgba(255,248,235,0.07);--border2:rgba(255,248,235,0.13);--border3:rgba(255,248,235,0.22);
+  --t1:#f5ede0;--t2:rgba(245,237,224,0.6);--t3:rgba(245,237,224,0.3);
+  --gold:#c9a96e;--gold2:#e8c99a;--gold-bg:rgba(201,169,110,0.1);--gold-border:rgba(201,169,110,0.25);
+  --red:#d45c5c;--red-bg:rgba(212,92,92,0.1);
+  --serif:'Cormorant',Georgia,serif;--sans:'DM Sans',sans-serif;
+  --r:16px;--r-sm:10px;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  --tab-h:64px;
 }
-html { height: 100%; background: var(--bg); }
-body {
-  min-height: 100dvh;
-  background: var(--bg);
-  color: var(--t1);
-  font-family: var(--sans);
-  font-size: 15px;
-  line-height: 1.5;
-  overflow-x: hidden;
-  overscroll-behavior: none;
-}
+html{height:100%;background:var(--bg)}
+body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;line-height:1.5;overflow-x:hidden;overscroll-behavior:none}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.35}
+input,textarea,button{font-family:var(--sans)}
+input[type=file]{display:none}
+::-webkit-scrollbar{width:0}
+.screen{display:none;min-height:100dvh;flex-direction:column}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes popIn{0%{transform:scale(.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes dotB{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+@keyframes obSlideIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes obSlideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-60px)}}
 
-/* grain overlay */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 999; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity: 0.4;
-}
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9000;flex-direction:column;gap:20px;transition:opacity .3s}
+.loading-logo{font-family:var(--serif);font-size:64px;font-weight:300;font-style:italic;letter-spacing:-2px;animation:fadeIn .6s ease}
+.loading-dots{display:flex;gap:8px}
+.loading-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:dotB 1.4s infinite ease-in-out both}
+.loading-dot:nth-child(1){animation-delay:-.32s}.loading-dot:nth-child(2){animation-delay:-.16s}
 
-/* ── SCREENS ── */
-.screen { display: none; min-height: 100dvh; flex-direction: column; animation: fadeIn 0.3s ease; }
-.screen.active { display: flex; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* ONBOARDING */
+#onboarding-screen{background:var(--bg);justify-content:flex-end;padding-bottom:calc(var(--safe-b)+32px)}
+.ob-slides{flex:1;position:relative;overflow:hidden}
+.ob-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 36px;opacity:0;pointer-events:none;transition:none}
+.ob-slide.active{opacity:1;pointer-events:auto;animation:obSlideIn .4s cubic-bezier(.4,0,.2,1) both}
+.ob-slide.exit{animation:obSlideOut .4s cubic-bezier(.4,0,.2,1) both}
+.ob-icon{font-size:72px;margin-bottom:32px;animation:popIn .5s ease .1s both}
+.ob-title{font-family:var(--serif);font-size:40px;font-weight:300;font-style:italic;text-align:center;color:var(--t1);line-height:1.15;margin-bottom:14px}
+.ob-sub{font-size:15px;color:var(--t2);text-align:center;line-height:1.7;max-width:300px}
+.ob-dots{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+.ob-dot{width:6px;height:6px;border-radius:3px;background:var(--border2);transition:all .3s}
+.ob-dot.active{width:24px;background:var(--gold)}
+.ob-actions{padding:0 32px;width:100%;display:flex;flex-direction:column;gap:10px}
+.btn-gold{padding:15px;background:var(--gold);color:#0f0e0c;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:.02em;width:100%}
+.btn-gold:active{transform:scale(.97);opacity:.9}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ob-skip{background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;padding:8px;text-align:center;width:100%}
 
-/* ── AUTH SCREEN ── */
-#auth-screen {
-  align-items: center; justify-content: center;
-  padding: 40px 32px;
-  background: var(--bg);
-}
-.auth-logo {
-  font-family: var(--serif);
-  font-size: 72px;
-  font-weight: 300;
-  font-style: italic;
-  color: var(--t1);
-  letter-spacing: -2px;
-  margin-bottom: 8px;
-}
-.auth-tagline {
-  font-size: 13px;
-  color: var(--t3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 56px;
-}
-.auth-form { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
-.auth-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); margin-bottom: 4px; display: block; }
-.auth-input {
-  width: 100%;
-  padding: 14px 16px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-sm);
-  color: var(--t1);
-  font-family: var(--sans);
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.auth-input:focus { border-color: var(--gold); }
-.auth-input::placeholder { color: var(--t3); }
-.btn-primary {
-  padding: 14px;
-  background: var(--gold);
-  color: #0e0e0e;
-  border: none;
-  border-radius: var(--r-sm);
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  letter-spacing: 0.02em;
-}
-.btn-primary:hover { opacity: 0.88; }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.auth-note { font-size: 12px; color: var(--t3); text-align: center; margin-top: 8px; }
-.auth-divider { display: flex; align-items: center; gap: 12px; margin: 4px 0; }
-.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.auth-divider span { font-size: 11px; color: var(--t3); }
+/* AUTH */
+#auth-screen{align-items:center;justify-content:center;padding:40px 32px;animation:fadeIn .4s ease}
+.auth-logo{font-family:var(--serif);font-size:80px;font-weight:300;font-style:italic;letter-spacing:-3px;margin-bottom:6px;animation:fadeUp .6s ease}
+.auth-tagline{font-size:12px;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:52px;animation:fadeUp .6s ease .1s both}
+.auth-form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s ease .2s both}
+.field-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:5px;display:block}
+.field-input{width:100%;padding:14px 16px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--t1);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
+.field-input::placeholder{color:var(--t3)}
+.auth-note{font-size:12px;color:var(--t3);text-align:center}
 
-/* ── MAIN APP ── */
-#app-screen { padding-bottom: calc(72px + var(--safe-bot)); }
+/* MAGIC */
+#magic-screen{align-items:center;justify-content:center;padding:40px;text-align:center;animation:fadeIn .4s ease}
 
-/* ── TOP BAR ── */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: calc(var(--safe-top) + 16px) 20px 16px;
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(14,14,14,0.92);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-.topbar-logo {
-  font-family: var(--serif); font-size: 28px; font-weight: 300;
-  font-style: italic; color: var(--t1); letter-spacing: -0.5px;
-}
-.topbar-right { display: flex; gap: 8px; }
-.icon-btn {
-  width: 38px; height: 38px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--t2); font-size: 16px;
-  transition: all 0.15s;
-}
-.icon-btn:hover { background: var(--bg4); color: var(--t1); }
+/* INVITE */
+#invite-screen{align-items:center;justify-content:center;padding:40px 24px;text-align:center;animation:fadeIn .4s ease}
+.invite-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px;width:100%;max-width:360px;margin-bottom:24px}
+.invite-emoji-large{font-size:56px;margin-bottom:12px;animation:popIn .4s ease}
+.invite-title{font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:8px}
+.invite-sub{font-size:14px;color:var(--t2);line-height:1.6}
 
-/* ── TAB BAR ── */
-.tabbar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  height: calc(64px + var(--safe-bot));
-  padding-bottom: var(--safe-bot);
-  background: rgba(14,14,14,0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  display: flex; align-items: center;
-  z-index: 100;
-}
-.tab {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 4px; cursor: pointer;
-  color: var(--t3); font-size: 10px;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  transition: color 0.2s; padding-top: 8px;
-}
-.tab svg { width: 22px; height: 22px; transition: all 0.2s; }
-.tab.active { color: var(--gold); }
-.tab.active svg { stroke: var(--gold); }
+/* MAIN APP */
+#app-screen{padding-bottom:calc(var(--tab-h) + var(--safe-b))}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-t)+14px) 18px 14px;position:sticky;top:0;z-index:100;background:rgba(15,14,12,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.topbar-logo{font-family:var(--serif);font-size:30px;font-weight:300;font-style:italic;letter-spacing:-.5px}
+.topbar-right{display:flex;gap:8px}
+.icon-btn{width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);transition:all .15s;flex-shrink:0}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-/* ── CONTENT AREA ── */
-.tab-content { display: none; flex: 1; overflow-y: auto; }
-.tab-content.active { display: block; }
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(15,14,12,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:stretch;z-index:100}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--t3);font-size:10px;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;padding-top:6px;position:relative}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:all .2s}
+.tab.active{color:var(--gold)}
+.tab.active svg{stroke:var(--gold)}
+.tab::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--gold);border-radius:0 0 2px 2px;opacity:0;transition:opacity .2s}
+.tab.active::after{opacity:1}
 
-/* ── JOURNAL TAB ── */
-.journal-header {
-  padding: 24px 20px 16px;
-  display: flex; align-items: flex-end; justify-content: space-between;
-}
-.journal-date {
-  font-family: var(--serif); font-size: 13px;
-  color: var(--t3); font-style: italic; letter-spacing: 0.04em;
-}
-.journal-greeting {
-  font-family: var(--serif); font-size: 32px;
-  font-weight: 300; color: var(--t1); line-height: 1.1;
-  padding: 0 20px 24px;
-}
-.journal-greeting em { font-style: italic; color: var(--gold); }
+.tab-content{display:none;flex:1;overflow-y:auto}
+.tab-content.active{display:block;animation:fadeIn .25s ease}
 
-/* Quick entry card */
-.quick-entry {
-  margin: 0 16px 20px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-.quick-entry:focus-within { border-color: var(--border2); }
-.quick-textarea {
-  width: 100%; min-height: 90px;
-  padding: 16px;
-  background: transparent;
-  border: none; outline: none;
-  color: var(--t1); font-family: var(--sans);
-  font-size: 15px; line-height: 1.6; resize: none;
-}
-.quick-textarea::placeholder { color: var(--t3); }
-.quick-entry-actions {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px;
-  border-top: 1px solid var(--border);
-}
-.quick-actions-left { display: flex; gap: 4px; }
-.media-btn {
-  width: 34px; height: 34px;
-  background: transparent; border: none;
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--t3); font-size: 18px;
-  transition: all 0.15s;
-}
-.media-btn:hover { background: var(--bg4); color: var(--t1); }
-.save-btn {
-  padding: 8px 18px;
-  background: var(--gold);
-  color: #0e0e0e; border: none;
-  border-radius: var(--r-sm);
-  font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: opacity 0.2s;
-}
-.save-btn:hover { opacity: 0.85; }
+/* JOURNAL */
+.journal-top{padding:22px 18px 0}
+.journal-date{font-size:12px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.journal-greeting{font-family:var(--serif);font-size:36px;font-weight:300;color:var(--t1);line-height:1.15;margin-bottom:20px}
+.journal-greeting em{font-style:italic;color:var(--gold)}
+.entry-prompt{margin:0 16px 20px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.entry-prompt:hover{border-color:var(--border3)}
+.entry-prompt:active{transform:scale(.98)}
+.prompt-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold);flex-shrink:0}
+.prompt-text{color:var(--t3);font-size:14px}
+.grid-section{padding:0 16px 24px}
+.section-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.masonry{columns:2;gap:10px}
+.m-card{break-inside:avoid;margin-bottom:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;animation:fadeUp .4s ease both}
+.m-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.m-card:active{transform:scale(.97)}
+.m-img{width:100%;display:block;object-fit:cover;max-height:240px}
+.m-body{padding:10px 12px 12px}
+.m-text{font-size:13px;color:var(--t2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.m-time{font-size:10px;color:var(--t3);margin-top:6px}
+.m-voice{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gold);margin-top:6px;cursor:pointer}
+.block-card{background:var(--bg3);border-radius:var(--r);padding:14px;break-inside:avoid;margin-bottom:10px;cursor:pointer;transition:all .22s;border:1px solid var(--border);animation:fadeUp .4s ease both}
+.block-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.block-card:active{transform:scale(.97)}
+.block-text{font-size:14px;color:var(--t1);line-height:1.6;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.block-time{font-size:10px;color:var(--t3);margin-top:8px}
+.empty-state{text-align:center;padding:56px 28px}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:.5;display:block}
+.empty-title{font-family:var(--serif);font-size:22px;font-weight:300;font-style:italic;color:var(--t2)}
+.empty-sub{font-size:13px;color:var(--t3);margin-top:6px;line-height:1.6}
 
-/* Media preview strip */
-.media-preview { display: flex; gap: 8px; padding: 0 14px 10px; flex-wrap: wrap; }
-.media-thumb {
-  width: 72px; height: 72px;
-  border-radius: 8px; object-fit: cover;
-  border: 1px solid var(--border);
-  position: relative;
-}
-.media-thumb-wrap {
-  position: relative; width: 72px; height: 72px;
-}
-.media-thumb-wrap img, .media-thumb-wrap video {
-  width: 100%; height: 100%; border-radius: 8px; object-fit: cover;
-}
-.remove-thumb {
-  position: absolute; top: -6px; right: -6px;
-  width: 20px; height: 20px;
-  background: #333; border: none; border-radius: 50%;
-  color: #fff; font-size: 12px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
+/* NEW ENTRY FULL SCREEN */
+#modal-new-entry{position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column}
+#modal-new-entry.active{display:flex;animation:slideUp .35s cubic-bezier(.4,0,.2,1)}
+.nem-top{display:flex;align-items:center;gap:12px;padding:calc(var(--safe-t)+14px) 18px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
+.nem-title{font-family:var(--serif);font-size:22px;font-weight:400;flex:1}
+.nem-body{flex:1;overflow-y:auto;padding:16px 18px}
+.space-sel{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px}
+.s-chip{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.s-chip.sel{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
+.entry-ta{width:100%;min-height:160px;background:transparent;border:none;outline:none;color:var(--t1);font-size:17px;line-height:1.7;resize:none;font-family:var(--serif);font-weight:300}
+.entry-ta::placeholder{color:var(--t3);font-style:italic}
+.media-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.mthumb{position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;flex-shrink:0;animation:scaleIn .2s ease}
+.mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover}
+.mthumb-rm{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,.7);border:none;border-radius:50%;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border-radius:var(--r-sm);margin-top:12px}
+.vdot{width:9px;height:9px;border-radius:50%;background:var(--red);animation:pulse 1s infinite;flex-shrink:0}
+.nem-footer{padding:14px 18px calc(var(--safe-b)+14px);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg)}
+.act-btn{width:44px;height:44px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:all .15s;flex-shrink:0}
+.act-btn:hover{background:var(--bg4)}
+.act-btn:active{transform:scale(.9)}
+.act-btn.rec{border-color:var(--red);background:var(--red-bg)}
+.save-btn{flex:1;padding:13px;background:var(--gold);color:#0f0e0c;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+.save-btn:active{transform:scale(.97)}
+.save-btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* Voice recording */
-.voice-indicator {
-  display: none; align-items: center; gap: 8px;
-  padding: 8px 14px;
-  color: #e05555; font-size: 13px;
-}
-.voice-indicator.active { display: flex; }
-.voice-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #e05555; animation: pulse 1s infinite;
-}
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+/* SPACES */
+.spaces-top{padding:22px 18px 12px}
+.spaces-title{font-family:var(--serif);font-size:36px;font-weight:300}
+.spaces-sub{font-size:13px;color:var(--t3);margin-top:3px}
+.spaces-tabs{display:flex;padding:0 16px 0;border-bottom:1px solid var(--border);margin-bottom:2px}
+.sp-tab{flex:1;padding:10px 0;text-align:center;font-size:13px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.sp-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.spaces-list{padding:14px 16px 100px}
+.space-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:14px;animation:fadeUp .3s ease both}
+.space-card:hover{border-color:var(--border2);background:var(--bg3)}
+.space-card:active{transform:scale(.98)}
+.sp-icon{width:50px;height:50px;border-radius:14px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.sp-info{flex:1;min-width:0}
+.sp-name{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-meta{font-size:12px;color:var(--t3);margin-top:3px}
+.sp-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border);margin-left:6px;vertical-align:middle}
+.sp-arrow{font-size:18px;color:var(--t3);flex-shrink:0}
+.new-space-card{border:1px dashed var(--border2);background:transparent;color:var(--t3)}
+.new-space-card:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
 
-/* Entries feed */
-.entries-section { padding: 0 16px 20px; }
-.section-label {
-  font-size: 11px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--t3);
-  margin-bottom: 12px;
-}
-.entry-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 16px;
-  margin-bottom: 10px; cursor: pointer;
-  transition: all 0.2s;
-}
-.entry-card:hover { border-color: var(--border2); background: var(--bg3); }
-.entry-meta {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px;
-}
-.entry-time { font-size: 11px; color: var(--t3); letter-spacing: 0.04em; }
-.entry-space-tag {
-  font-size: 10px; padding: 2px 8px;
-  background: var(--gold-dim); color: var(--gold);
-  border-radius: 20px; letter-spacing: 0.04em;
-}
-.entry-text {
-  font-size: 14px; color: var(--t2); line-height: 1.55;
-  display: -webkit-box; -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical; overflow: hidden;
-}
-.entry-media-strip { display: flex; gap: 6px; margin-top: 10px; }
-.entry-media-strip img, .entry-media-strip video {
-  width: 60px; height: 60px; border-radius: 6px; object-fit: cover;
-}
-.voice-entry-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 12px; background: var(--bg4);
-  border-radius: 20px; margin-top: 8px;
-  font-size: 12px; color: var(--t2); cursor: pointer;
-}
+/* SPACE DETAIL */
+#space-detail-screen{background:var(--bg)}
+.sd-header{padding:calc(var(--safe-t)+14px) 18px 14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;background:rgba(15,14,12,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.back-btn{width:38px;height:38px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);flex-shrink:0;transition:all .15s}
+.back-btn:active{transform:scale(.9)}
+.sd-info{flex:1;min-width:0}
+.sd-name{font-family:var(--serif);font-size:22px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sd-sub{font-size:12px;color:var(--t3);margin-top:1px}
+.hdr-actions{display:flex;gap:8px}
+.inv-btn{padding:8px 14px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:var(--r-sm);color:var(--gold);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.inv-btn:hover{background:var(--gold);color:#0f0e0c}
+.more-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:18px;transition:all .15s}
+.sd-body{overflow-y:auto;padding-bottom:80px}
+.sd-entry-area{padding:14px 16px}
+.sd-quick{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
+.sd-quick:hover{border-color:var(--border2)}
+.space-grid{padding:0 16px 12px;columns:2;gap:10px}
+.members-panel{background:var(--bg2);border-top:1px solid var(--border);padding:16px 18px}
+.mem-title{font-size:11px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.mem-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.mem-row:last-child{border-bottom:none}
+.mem-av{width:34px;height:34px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2);flex-shrink:0;font-family:var(--serif);font-style:italic}
+.mem-info{flex:1;min-width:0}
+.mem-name{font-size:14px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mem-role{font-size:11px;color:var(--t3);margin-top:1px}
+.mem-act{font-size:12px;color:var(--t3);cursor:pointer;padding:5px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.mem-act:hover{color:var(--red);background:var(--red-bg)}
+.mem-act.promote{color:var(--gold)}
+.mem-act.promote:hover{background:var(--gold-bg);color:var(--gold)}
 
-/* ── SPACES TAB ── */
-.spaces-header { padding: 24px 20px 16px; }
-.spaces-title {
-  font-family: var(--serif); font-size: 32px;
-  font-weight: 300; color: var(--t1);
-}
-.spaces-sub { font-size: 13px; color: var(--t3); margin-top: 4px; }
-.spaces-grid { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+/* PROFILE */
+.profile-top{padding:28px 18px 0}
+.p-avatar{width:72px;height:72px;border-radius:50%;background:var(--gold-bg);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:34px;font-style:italic;color:var(--gold);margin-bottom:14px}
+.p-name{font-family:var(--serif);font-size:30px;font-weight:300}
+.p-email{font-size:13px;color:var(--t3);margin-top:2px}
+.stat-row{display:flex;gap:10px;margin-top:20px}
+.stat-card{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+.stat-num{font-family:var(--serif);font-size:30px;color:var(--gold)}
+.stat-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.settings-sec{padding:20px 18px 100px}
+.sgroup{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.srow{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.srow:last-child{border-bottom:none}
+.srow:hover{background:var(--bg3)}
+.srow.danger .slabel{color:var(--red)}
+.sicon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.slabel{flex:1;font-size:15px;color:var(--t1)}
+.sarrow{color:var(--t3);font-size:18px}
 
-.space-card {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 18px;
-  cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center; gap: 14px;
-}
-.space-card:hover { border-color: var(--border2); background: var(--bg3); }
-.space-icon {
-  width: 46px; height: 46px; border-radius: 12px;
-  background: var(--bg4); display: flex; align-items: center;
-  justify-content: center; font-size: 22px; flex-shrink: 0;
-}
-.space-info { flex: 1; min-width: 0; }
-.space-name {
-  font-family: var(--serif); font-size: 20px;
-  font-weight: 400; color: var(--t1); line-height: 1.2;
-}
-.space-members { font-size: 12px; color: var(--t3); margin-top: 2px; }
-.space-count {
-  font-size: 12px; color: var(--t3);
-  background: var(--bg4); padding: 4px 10px;
-  border-radius: 20px; white-space: nowrap;
-}
-.new-space-btn {
-  margin: 16px; display: flex; align-items: center; gap: 12px;
-  padding: 16px; background: transparent;
-  border: 1px dashed var(--border2); border-radius: var(--r);
-  color: var(--t3); cursor: pointer; font-family: var(--sans);
-  font-size: 14px; transition: all 0.2s; width: calc(100% - 32px);
-}
-.new-space-btn:hover { border-color: var(--gold); color: var(--gold); }
+/* MODALS */
+.modal-ov{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+.modal-ov.active{display:flex;animation:fadeIn .2s ease}
+.modal-sheet{background:var(--bg2);border-radius:22px 22px 0 0;width:100%;max-width:600px;border-top:1px solid var(--border2);max-height:92dvh;overflow-y:auto;animation:slideUp .32s cubic-bezier(.34,1.06,.64,1)}
+.mhandle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:14px auto 20px}
+.mtitle{font-family:var(--serif);font-size:28px;font-weight:300;padding:0 20px 14px}
+.mbody{padding:0 20px calc(var(--safe-b)+20px)}
+.mactions{display:flex;gap:10px;padding:14px 20px calc(var(--safe-b)+20px)}
+.btn-ghost{flex:1;padding:13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--t2);font-size:14px;cursor:pointer;transition:all .15s}
+.btn-ghost:hover{background:var(--bg4)}
+.btn-danger{flex:1;padding:13px;background:var(--red-bg);border:1px solid rgba(212,92,92,.3);border-radius:var(--r-sm);color:var(--red);font-size:14px;cursor:pointer}
+.emoji-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.emo{width:46px;height:46px;background:var(--bg3);border:2px solid transparent;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .15s}
+.emo.sel{border-color:var(--gold);background:var(--gold-bg);transform:scale(1.08)}
+.detail-date{font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.detail-text{font-family:var(--serif);font-size:18px;font-weight:300;color:var(--t1);line-height:1.75;margin-bottom:16px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.detail-grid img,.detail-grid video{width:100%;border-radius:12px;object-fit:cover;aspect-ratio:1}
 
-/* ── SPACE DETAIL ── */
-#space-detail { background: var(--bg); }
-.space-detail-header {
-  padding: calc(var(--safe-top) + 16px) 20px 16px;
-  display: flex; align-items: center; gap: 14px;
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(14,14,14,0.92); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-.back-btn {
-  width: 36px; height: 36px; background: var(--bg3);
-  border: 1px solid var(--border); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--t2); flex-shrink: 0;
-}
-.space-detail-name {
-  font-family: var(--serif); font-size: 22px;
-  font-weight: 400; flex: 1;
-}
-.invite-btn {
-  padding: 8px 14px; background: var(--gold-dim);
-  border: 1px solid rgba(200,169,126,0.2);
-  border-radius: var(--r-sm); color: var(--gold);
-  font-size: 12px; cursor: pointer; white-space: nowrap;
-}
+/* ACTION SHEET */
+#asheet{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center}
+#asheet.active{display:flex;animation:fadeIn .2s ease}
+.asheet-inner{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:14px 12px calc(var(--safe-b)+14px);border-top:1px solid var(--border2);animation:slideUp .3s cubic-bezier(.34,1.06,.64,1)}
+.ahandle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 14px}
+.aitem{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;cursor:pointer;transition:background .15s;font-size:15px;color:var(--t1)}
+.aitem:hover{background:var(--bg3)}
+.aitem.danger{color:var(--red)}
+.aicon{font-size:20px;width:28px;text-align:center}
+.acancel{margin-top:8px;padding:14px;background:var(--bg3);border-radius:14px;text-align:center;cursor:pointer;font-size:15px;color:var(--t2)}
+.acancel:hover{background:var(--bg4)}
 
-/* ── MODALS ── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
-  align-items: flex-end; justify-content: center;
-}
-.modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-.modal {
-  background: var(--bg2); border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 600px;
-  padding: 20px 20px calc(20px + var(--safe-bot));
-  border-top: 1px solid var(--border2);
-  max-height: 92dvh; overflow-y: auto;
-  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal-handle {
-  width: 40px; height: 4px; background: var(--border2);
-  border-radius: 2px; margin: 0 auto 20px;
-}
-.modal-title {
-  font-family: var(--serif); font-size: 26px;
-  font-weight: 300; margin-bottom: 20px;
-}
-.modal-input {
-  width: 100%; padding: 14px 16px;
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: var(--r-sm); color: var(--t1);
-  font-family: var(--sans); font-size: 15px;
-  outline: none; margin-bottom: 10px;
-  transition: border-color 0.2s;
-}
-.modal-input:focus { border-color: var(--gold); }
-.modal-input::placeholder { color: var(--t3); }
-.modal-label { font-size: 12px; color: var(--t3); margin-bottom: 6px; margin-top: 14px; display: block; }
-.emoji-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.emoji-opt {
-  width: 44px; height: 44px; background: var(--bg3);
-  border: 2px solid transparent; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; cursor: pointer; transition: all 0.15s;
-}
-.emoji-opt.selected { border-color: var(--gold); background: var(--gold-dim); }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.btn-secondary {
-  flex: 1; padding: 14px;
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: var(--r-sm); color: var(--t2);
-  font-family: var(--sans); font-size: 14px; cursor: pointer;
-}
-.btn-full { flex: 2; }
-
-/* Entry detail modal */
-.entry-detail-content { padding: 0 0 20px; }
-.entry-detail-text { font-size: 15px; color: var(--t1); line-height: 1.7; margin-bottom: 16px; }
-.entry-detail-media { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-.entry-detail-media img, .entry-detail-media video {
-  width: 100%; border-radius: 10px; object-fit: cover;
-  aspect-ratio: 1;
-}
-.delete-entry-btn {
-  width: 100%; padding: 12px;
-  background: transparent; border: 1px solid rgba(220,60,60,0.3);
-  border-radius: var(--r-sm); color: #dc6060;
-  font-family: var(--sans); font-size: 13px; cursor: pointer;
-  margin-top: 10px;
-}
-
-/* ── PROFILE TAB ── */
-.profile-section { padding: 24px 20px; }
-.profile-avatar {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: var(--gold-dim); border: 2px solid var(--gold);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--serif); font-size: 32px; font-style: italic;
-  color: var(--gold); margin-bottom: 12px;
-}
-.profile-name { font-family: var(--serif); font-size: 28px; font-weight: 300; }
-.profile-email { font-size: 13px; color: var(--t3); margin-top: 2px; }
-.profile-stat-row {
-  display: flex; gap: 12px; margin-top: 24px;
-}
-.profile-stat {
-  flex: 1; background: var(--bg2); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 14px; text-align: center;
-}
-.profile-stat-num { font-family: var(--serif); font-size: 28px; color: var(--gold); }
-.profile-stat-label { font-size: 11px; color: var(--t3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
-.settings-list { margin-top: 24px; }
-.settings-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 0; border-bottom: 1px solid var(--border);
-  cursor: pointer;
-}
-.settings-item:last-child { border-bottom: none; }
-.settings-item-left { display: flex; align-items: center; gap: 12px; }
-.settings-icon { font-size: 18px; width: 28px; text-align: center; }
-.settings-label { font-size: 15px; color: var(--t1); }
-.settings-arrow { color: var(--t3); font-size: 18px; }
-
-/* ── TOAST ── */
-.toast {
-  position: fixed; bottom: calc(80px + var(--safe-bot)); left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: 24px; padding: 10px 20px;
-  font-size: 13px; color: var(--t1);
-  z-index: 999; opacity: 0;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* ── LOADING ── */
-.loading-screen {
-  position: fixed; inset: 0; background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 500; flex-direction: column; gap: 16px;
-}
-.loading-logo {
-  font-family: var(--serif); font-size: 56px;
-  font-weight: 300; font-style: italic; color: var(--t1);
-  letter-spacing: -1px;
-}
-.loading-dots { display: flex; gap: 6px; }
-.loading-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--gold); opacity: 0.3;
-  animation: dotPulse 1.2s infinite;
-}
-.loading-dot:nth-child(2) { animation-delay: 0.2s; }
-.loading-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dotPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-
-/* ── INVITE SCREEN ── */
-#invite-screen {
-  align-items: center; justify-content: center;
-  padding: 40px 24px; text-align: center;
-}
-.invite-logo { font-family: var(--serif); font-size: 52px; font-style: italic; margin-bottom: 24px; }
-.invite-msg { font-family: var(--serif); font-size: 22px; color: var(--t1); line-height: 1.4; margin-bottom: 8px; }
-.invite-sub { font-size: 13px; color: var(--t3); margin-bottom: 40px; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 0; }
-
-/* Hidden file input */
-input[type=file] { display: none; }
-
-/* Empty state */
-.empty-state { text-align: center; padding: 48px 24px; }
-.empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
-.empty-state-text { font-family: var(--serif); font-size: 20px; color: var(--t2); font-style: italic; }
-.empty-state-sub { font-size: 13px; color: var(--t3); margin-top: 6px; }
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 14px);left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg4);border:1px solid var(--border2);border-radius:24px;padding:10px 20px;font-size:13px;color:var(--t1);z-index:9000;opacity:0;transition:all .3s cubic-bezier(.34,1.2,.64,1);white-space:nowrap;max-width:calc(100vw - 48px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
 </style>
 </head>
 <body>
 
-<!-- Loading -->
-<div class="loading-screen" id="loading">
+<div id="loading">
   <div class="loading-logo">fold.</div>
-  <div class="loading-dots">
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
+  <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="onboarding-screen">
+  <div class="ob-slides">
+    <div class="ob-slide active" id="ob0">
+      <div class="ob-icon">🌿</div>
+      <div class="ob-title">Your memories,<br>held gently</div>
+      <div class="ob-sub">A private space for your life — journal entries, photos, voice notes, and moments worth keeping.</div>
+    </div>
+    <div class="ob-slide" id="ob1">
+      <div class="ob-icon">🤝</div>
+      <div class="ob-title">Share what<br>you choose</div>
+      <div class="ob-sub">Create shared Spaces with your partner, family, or friends. Your private journal stays only yours.</div>
+    </div>
+    <div class="ob-slide" id="ob2">
+      <div class="ob-icon">✨</div>
+      <div class="ob-title">Simple,<br>always</div>
+      <div class="ob-sub">Write, photograph, record. No algorithms. No noise. Just the things worth remembering.</div>
+    </div>
+  </div>
+  <div class="ob-dots"><div class="ob-dot active" id="od0"></div><div class="ob-dot" id="od1"></div><div class="ob-dot" id="od2"></div></div>
+  <div class="ob-actions">
+    <button class="btn-gold" id="ob-btn" onclick="obNext()">Continue</button>
+    <button class="ob-skip" onclick="skipOb()">Skip intro</button>
   </div>
 </div>
 
-<!-- Auth Screen -->
+<!-- AUTH -->
 <div class="screen" id="auth-screen">
   <div class="auth-logo">fold.</div>
   <div class="auth-tagline">memories, held gently</div>
   <div class="auth-form">
-    <div>
-      <label class="auth-label">your email</label>
-      <input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email">
-    </div>
-    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Send magic link</button>
-    <p class="auth-note">No password needed. We'll send you a link to sign in.</p>
+    <div><label class="field-label">your email</label><input class="field-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+    <button class="btn-gold" id="auth-btn" onclick="doAuth()">Send magic link</button>
+    <p class="auth-note">No password needed — we'll email you a sign-in link.</p>
   </div>
 </div>
 
-<!-- Magic link sent -->
-<div class="screen" id="magic-sent-screen">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;padding:40px;text-align:center;">
-    <div style="font-size:48px;margin-bottom:24px;">✉️</div>
-    <div style="font-family:var(--serif);font-size:28px;margin-bottom:8px;">Check your email</div>
-    <div style="font-size:14px;color:var(--t3);line-height:1.6;">We sent a magic link to <strong id="sent-email-display" style="color:var(--t2)"></strong>. Tap it to open fold.</div>
-    <button class="btn-secondary" style="margin-top:40px;border-radius:var(--r-sm);padding:12px 24px;" onclick="showScreen('auth-screen')">Use different email</button>
+<!-- MAGIC SENT -->
+<div class="screen" id="magic-screen">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;padding:40px;text-align:center">
+    <div style="font-size:52px;margin-bottom:24px;animation:popIn .4s ease">✉️</div>
+    <div style="font-family:var(--serif);font-size:30px;margin-bottom:10px">Check your email</div>
+    <div style="font-size:14px;color:var(--t2);line-height:1.7">Magic link sent to<br><strong id="sent-email" style="color:var(--t1)"></strong></div>
+    <button class="btn-ghost" style="margin-top:36px;border-radius:var(--r-sm);padding:12px 24px;max-width:240px;border:1px solid var(--border2)" onclick="showScreen('auth-screen')">Use different email</button>
   </div>
 </div>
 
-<!-- Invite accept screen -->
+<!-- INVITE -->
 <div class="screen" id="invite-screen">
-  <div class="invite-logo">fold.</div>
-  <div class="invite-msg" id="invite-msg">You've been invited to a shared space</div>
-  <div class="invite-sub" id="invite-sub">Sign in to join</div>
-  <div class="auth-form" style="max-width:340px;">
-    <input class="auth-input" id="invite-email" type="email" placeholder="your email">
-    <button class="btn-primary" onclick="handleInviteAuth()">Join space</button>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:32px 24px">
+    <div style="font-family:var(--serif);font-size:48px;font-style:italic;margin-bottom:24px">fold.</div>
+    <div class="invite-card">
+      <div class="invite-emoji-large" id="inv-emoji">🌿</div>
+      <div class="invite-title" id="inv-name">A shared space</div>
+      <div class="invite-sub" id="inv-desc">You've been invited to a shared memory space on fold.</div>
+    </div>
+    <div style="width:100%;max-width:360px">
+      <label class="field-label" style="margin-bottom:6px;display:block">enter your email to join</label>
+      <input class="field-input" id="inv-email" type="email" placeholder="you@example.com" style="margin-bottom:10px">
+      <button class="btn-gold" onclick="doInviteAuth()">Join this space</button>
+      <p class="auth-note" style="margin-top:10px">We'll send a magic link — no password needed</p>
+    </div>
   </div>
 </div>
 
-<!-- Main App -->
+<!-- MAIN APP -->
 <div class="screen" id="app-screen">
-
-  <!-- Top bar -->
   <div class="topbar">
     <div class="topbar-logo">fold.</div>
     <div class="topbar-right">
-      <div class="icon-btn" onclick="showNewEntryModal()" title="New entry">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <div class="icon-btn" onclick="openNewEntry(false)" title="New memory">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </div>
     </div>
   </div>
-
-  <!-- Journal tab -->
+  <!-- JOURNAL TAB -->
   <div class="tab-content active" id="tab-journal">
-    <div class="journal-header">
-      <span class="journal-date" id="journal-date"></span>
+    <div class="journal-top">
+      <div class="journal-date" id="j-date"></div>
+      <div class="journal-greeting" id="j-greet"></div>
     </div>
-    <div class="journal-greeting" id="journal-greeting"></div>
-
-    <!-- Quick entry -->
-    <div class="quick-entry" id="quick-entry-card">
-      <textarea class="quick-textarea" id="quick-text" placeholder="What's on your mind..."></textarea>
-      <div class="media-preview" id="quick-media-preview"></div>
-      <div class="voice-indicator" id="voice-indicator">
-        <div class="voice-dot"></div>
-        <span id="voice-timer">0:00</span>
-        <span style="flex:1;color:var(--t3);font-size:12px;">Recording...</span>
-        <button style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;" onclick="stopVoice()">Done</button>
-      </div>
-      <div class="quick-entry-actions">
-        <div class="quick-actions-left">
-          <button class="media-btn" onclick="document.getElementById('file-photo').click()" title="Photo">📷</button>
-          <button class="media-btn" onclick="document.getElementById('file-video').click()" title="Video">🎥</button>
-          <button class="media-btn" id="voice-btn" onclick="toggleVoice()" title="Voice">🎙️</button>
-        </div>
-        <button class="save-btn" onclick="saveEntry()">Save</button>
-      </div>
+    <div class="entry-prompt" onclick="openNewEntry(false)">
+      <div class="prompt-avatar" id="p-av"></div>
+      <div class="prompt-text">What's worth remembering today?</div>
     </div>
-
-    <div class="entries-section">
-      <div class="section-label">Recent</div>
-      <div id="journal-entries-list"></div>
+    <div class="grid-section">
+      <div class="section-label">Recent memories</div>
+      <div class="masonry" id="j-grid"></div>
+      <div id="j-empty" style="display:none" class="empty-state"><span class="empty-icon">🌿</span><div class="empty-title">Your story starts here</div><div class="empty-sub">Tap + to add your first memory</div></div>
     </div>
   </div>
-
-  <!-- Spaces tab -->
+  <!-- SPACES TAB -->
   <div class="tab-content" id="tab-spaces">
-    <div class="spaces-header">
-      <div class="spaces-title" style="font-family:var(--serif);font-weight:300;">Spaces</div>
-      <div class="spaces-sub">Shared albums with people you love</div>
+    <div class="spaces-top"><div class="spaces-title">Spaces</div><div class="spaces-sub">Shared albums with people you love</div></div>
+    <div class="spaces-tabs">
+      <div class="sp-tab active" id="spt-joined" onclick="switchSpTab('joined')">Joined</div>
+      <div class="sp-tab" id="spt-mine" onclick="switchSpTab('mine')">Created by me</div>
     </div>
-    <div class="spaces-grid" id="spaces-list"></div>
-    <button class="new-space-btn" onclick="showNewSpaceModal()">
-      <span style="font-size:22px;">+</span>
-      <span>Create a new space</span>
-    </button>
+    <div class="spaces-list" id="sp-list"></div>
   </div>
-
-  <!-- Profile tab -->
+  <!-- PROFILE TAB -->
   <div class="tab-content" id="tab-profile">
-    <div class="profile-section">
-      <div class="profile-avatar" id="profile-avatar"></div>
-      <div class="profile-name" id="profile-name">—</div>
-      <div class="profile-email" id="profile-email"></div>
-      <div class="profile-stat-row">
-        <div class="profile-stat">
-          <div class="profile-stat-num" id="stat-entries">0</div>
-          <div class="profile-stat-label">Memories</div>
-        </div>
-        <div class="profile-stat">
-          <div class="profile-stat-num" id="stat-spaces">0</div>
-          <div class="profile-stat-label">Spaces</div>
-        </div>
+    <div class="profile-top">
+      <div class="p-avatar" id="p-avatar"></div>
+      <div class="p-name" id="p-name">—</div>
+      <div class="p-email" id="p-email"></div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-num" id="st-mem">0</div><div class="stat-label">Memories</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-sp">0</div><div class="stat-label">Spaces</div></div>
       </div>
-      <div class="settings-list">
-        <div class="settings-item" onclick="showNotifInfo()">
-          <div class="settings-item-left">
-            <span class="settings-icon">🔔</span>
-            <span class="settings-label">Notifications</span>
-          </div>
-          <span class="settings-arrow">›</span>
-        </div>
-        <div class="settings-item" onclick="signOut()">
-          <div class="settings-item-left">
-            <span class="settings-icon">👋</span>
-            <span class="settings-label">Sign out</span>
-          </div>
-          <span class="settings-arrow">›</span>
-        </div>
+    </div>
+    <div class="settings-sec">
+      <div class="sgroup">
+        <div class="srow" onclick="toast('Notifications coming soon')"><span class="sicon">🔔</span><span class="slabel">Notifications</span><span class="sarrow">›</span></div>
+        <div class="srow" onclick="toast('Export coming soon')"><span class="sicon">📦</span><span class="slabel">Export memories</span><span class="sarrow">›</span></div>
+      </div>
+      <div class="sgroup">
+        <div class="srow danger" onclick="doSignOut()"><span class="sicon">👋</span><span class="slabel">Sign out</span></div>
       </div>
     </div>
   </div>
-
-  <!-- Tab bar -->
+  <!-- TABBAR -->
   <div class="tabbar">
-    <div class="tab active" id="tab-btn-journal" onclick="switchTab('journal')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-      </svg>
-      Journal
+    <div class="tab active" id="tb-journal" onclick="switchTab('journal')">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Journal
     </div>
-    <div class="tab" id="tab-btn-spaces" onclick="switchTab('spaces')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      Spaces
+    <div class="tab" id="tb-spaces" onclick="switchTab('spaces')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Spaces
     </div>
-    <div class="tab" id="tab-btn-profile" onclick="switchTab('profile')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      You
+    <div class="tab" id="tb-profile" onclick="switchTab('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>You
     </div>
   </div>
 </div>
 
-<!-- Space Detail Screen -->
+<!-- SPACE DETAIL -->
 <div class="screen" id="space-detail-screen">
-  <div class="space-detail-header">
-    <div class="back-btn" onclick="closeSpaceDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
-    </div>
-    <div class="space-detail-name" id="space-detail-name"></div>
-    <button class="invite-btn" onclick="shareInviteLink()">+ Invite</button>
-  </div>
-
-  <!-- Space quick entry -->
-  <div style="padding:16px;">
-    <div class="quick-entry">
-      <textarea class="quick-textarea" id="space-quick-text" placeholder="Add a memory to this space..."></textarea>
-      <div class="media-preview" id="space-media-preview"></div>
-      <div class="quick-entry-actions">
-        <div class="quick-actions-left">
-          <button class="media-btn" onclick="document.getElementById('space-file-photo').click()">📷</button>
-          <button class="media-btn" onclick="document.getElementById('space-file-video').click()">🎥</button>
-        </div>
-        <button class="save-btn" onclick="saveSpaceEntry()">Save</button>
-      </div>
+  <div class="sd-header">
+    <div class="back-btn" onclick="closeSpaceDetail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div class="sd-info"><div class="sd-name" id="sd-name"></div><div class="sd-sub" id="sd-sub"></div></div>
+    <div class="hdr-actions">
+      <button class="inv-btn" onclick="shareInvite()">+ Invite</button>
+      <div class="more-btn" onclick="showSpaceMenu()">⋯</div>
     </div>
   </div>
-
-  <div style="padding:0 16px 100px;">
-    <div class="section-label">Memories</div>
-    <div id="space-entries-list"></div>
+  <div class="sd-body" id="sd-body">
+    <div class="sd-entry-area">
+      <div class="sd-quick" onclick="openNewEntry(true)"><span style="font-size:20px">📝</span><span style="color:var(--t3);font-size:14px">Add a memory to this space...</span></div>
+    </div>
+    <div class="space-grid" id="sg-grid"></div>
+    <div id="members-wrap"></div>
   </div>
 </div>
 
-<!-- Modals -->
-<!-- New Space Modal -->
-<div class="modal-overlay" id="modal-new-space">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">New space</div>
-    <label class="modal-label">Name</label>
-    <input class="modal-input" id="new-space-name" placeholder="e.g. Christmas 2025, Our Trip...">
-    <label class="modal-label">Icon</label>
-    <div class="emoji-picker" id="emoji-picker"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('modal-new-space')">Cancel</button>
-      <button class="btn-primary btn-full" onclick="createSpace()">Create</button>
+<!-- NEW ENTRY MODAL -->
+<div id="modal-new-entry">
+  <div class="nem-top">
+    <div class="back-btn" onclick="closeNewEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <div class="nem-title">New memory</div>
+  </div>
+  <div class="nem-body">
+    <div class="space-sel" id="nem-space-sel"></div>
+    <textarea class="entry-ta" id="nem-ta" placeholder="What happened, how you felt, what you want to remember..."></textarea>
+    <div class="media-strip" id="nem-media"></div>
+    <div class="vbar" id="nem-vbar" style="display:none">
+      <div class="vdot"></div>
+      <span style="color:var(--red);font-size:13px" id="v-timer">0:00</span>
+      <span style="flex:1;font-size:12px;color:var(--t3)">Recording...</span>
+      <button style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer" onclick="stopVoice()">Done</button>
+    </div>
+    <div id="v-saved" style="display:none;margin-top:10px;cursor:pointer" onclick="previewVoice()">
+      <div class="m-voice">🎙️ Voice note recorded — tap to preview</div>
+    </div>
+  </div>
+  <div class="nem-footer">
+    <div class="act-btn" onclick="document.getElementById('fi-ph').click()">📷</div>
+    <div class="act-btn" onclick="document.getElementById('fi-vid').click()">🎥</div>
+    <div class="act-btn" id="v-btn" onclick="toggleVoice()">🎙️</div>
+    <button class="save-btn" id="sv-btn" onclick="saveEntry()">Save memory</button>
+  </div>
+</div>
+
+<!-- MODAL: NEW SPACE -->
+<div class="modal-ov" id="m-newspace">
+  <div class="modal-sheet">
+    <div class="mhandle"></div>
+    <div class="mtitle">New space</div>
+    <div class="mbody">
+      <label class="field-label">Name</label>
+      <input class="field-input" id="ns-name" placeholder="e.g. Our Trip, Christmas 2025..." style="margin-bottom:14px">
+      <label class="field-label">Description (optional)</label>
+      <input class="field-input" id="ns-desc" placeholder="What's this space about?" style="margin-bottom:14px">
+      <label class="field-label">Icon</label>
+      <div class="emoji-grid" id="em-grid"></div>
+    </div>
+    <div class="mactions">
+      <button class="btn-ghost" onclick="closeModal('m-newspace')">Cancel</button>
+      <button class="btn-gold" style="flex:2" onclick="createSpace()">Create space</button>
     </div>
   </div>
 </div>
 
-<!-- Entry Detail Modal -->
-<div class="modal-overlay" id="modal-entry-detail">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="entry-detail-content" id="entry-detail-content"></div>
-    <button class="delete-entry-btn" id="delete-entry-btn">Delete memory</button>
+<!-- MODAL: ENTRY DETAIL -->
+<div class="modal-ov" id="m-detail">
+  <div class="modal-sheet">
+    <div class="mhandle"></div>
+    <div class="mbody" id="m-detail-body"></div>
+    <div class="mactions">
+      <button class="btn-danger" id="del-btn">Delete</button>
+      <button class="btn-ghost" onclick="closeModal('m-detail')">Close</button>
+    </div>
   </div>
 </div>
 
-<!-- File inputs -->
-<input type="file" id="file-photo" accept="image/*" multiple onchange="handleFileSelect(event,'journal')">
-<input type="file" id="file-video" accept="video/*" onchange="handleFileSelect(event,'journal')">
-<input type="file" id="space-file-photo" accept="image/*" multiple onchange="handleFileSelect(event,'space')">
-<input type="file" id="space-file-video" accept="video/*" onchange="handleFileSelect(event,'space')">
+<!-- ACTION SHEET -->
+<div id="asheet">
+  <div class="asheet-inner" id="asheet-inner"><div class="ahandle"></div></div>
+</div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<!-- FILE INPUTS -->
+<input type="file" id="fi-ph" accept="image/*" multiple onchange="addFiles(event)">
+<input type="file" id="fi-vid" accept="video/*" onchange="addFiles(event)">
+
+<!-- TOAST -->
+<div class="toast" id="t-el"></div>
 
 <script>
-// ── CONFIG ──
-const SUPABASE_URL = 'https://gxsqotfeansdmnjvblte.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c3FvdGZlYW5zZG1uanZibHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Nzk5MTksImV4cCI6MjA5MjA1NTkxOX0.1oaF2IlH7FWrDDGGy6TwWLC0KcC3tigd4Z_0Jk5VpKQ';
-
+const SB_URL = 'https://gxsqotfeansdmnjvblte.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c3FvdGZlYW5zZG1uanZibHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Nzk5MTksImV4cCI6MjA5MjA1NTkxOX0.1oaF2IlH7FWrDDGGy6TwWLC0KcC3tigd4Z_0Jk5VpKQ';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true }
-});
+const db = createClient(SB_URL, SB_KEY, { auth: { persistSession:true, autoRefreshToken:true }});
 
-// ── STATE ──
-let currentUser = null;
-let currentSession = null;
-let journalFiles = [];
-let spaceFiles = [];
-let mediaRecorder = null;
-let voiceChunks = [];
-let voiceTimerInterval = null;
-let voiceSeconds = 0;
-let currentSpaceId = null;
-let currentSpaceName = '';
-let selectedEmoji = '🌿';
-let currentEntryId = null;
-let pendingInviteSpaceId = null;
+let USER=null, pendingInvite=null, curSpaceId=null, curSpaceData=null, myRole='member';
+let entryFiles=[], voiceBlob=null, mr=null, vChunks=[], vSecs=0, vInt=null;
+let selSpace='', selEmoji='🌿', obIdx=0, curEntryId=null, spTabMode='joined';
+const EMOJIS=['🌿','🌊','🏔️','🌙','☀️','🎵','✈️','🏡','🌸','💛','📚','🎨','🍃','🎬','⭐','🐾','🍜','🌺','🧭','🦋'];
 
-const EMOJIS = ['🌿','🌊','🏔️','🌙','☀️','🎵','✈️','🏡','🌸','💛','📚','🎨','🍃','🌺','⭐'];
-
-// ── INIT ──
-async function init() {
-  // Check for invite token in URL
-  const params = new URLSearchParams(window.location.search);
-  const inviteToken = params.get('invite');
-  if (inviteToken) {
-    pendingInviteSpaceId = inviteToken;
-    await loadInviteScreen(inviteToken);
-    return;
-  }
-
-  // Check for auth callback (magic link)
-  const { data: { session }, error } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    currentSession = session;
-    await showApp();
-  } else {
-    showScreen('auth-screen');
-  }
-  document.getElementById('loading').style.display = 'none';
-
-  // Listen for auth changes (magic link click)
-  db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      currentUser = session.user;
-      currentSession = session;
-      if (pendingInviteSpaceId) {
-        await acceptInvite(pendingInviteSpaceId);
-        pendingInviteSpaceId = null;
-      }
-      await showApp();
-      window.history.replaceState({}, '', window.location.pathname);
+/* INIT */
+async function init(){
+  const p=new URLSearchParams(location.search);
+  pendingInvite=p.get('invite');
+  db.auth.onAuthStateChange(async(ev,sess)=>{
+    if(ev==='SIGNED_IN'&&sess){
+      USER=sess.user;
+      if(pendingInvite){await acceptInvite(pendingInvite);pendingInvite=null;history.replaceState({},'',location.pathname);}
+      hideSplash();showApp();
     }
-    if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      showScreen('auth-screen');
-    }
+    if(ev==='SIGNED_OUT'){USER=null;hideSplash();showScreen('auth-screen');}
   });
+  const {data:{session}}=await db.auth.getSession();
+  if(session){
+    USER=session.user;
+    if(pendingInvite){await acceptInvite(pendingInvite);pendingInvite=null;history.replaceState({},'',location.pathname);}
+    hideSplash();showApp();
+  } else if(pendingInvite){
+    await loadInvitePage(pendingInvite);hideSplash();
+  } else {
+    hideSplash();
+    localStorage.getItem('fold_ob')?showScreen('auth-screen'):showScreen('onboarding-screen');
+  }
 }
 
-async function loadInviteScreen(spaceId) {
-  try {
-    const { data: space } = await db.from('spaces').select('name,emoji').eq('id', spaceId).single();
-    if (space) {
-      document.getElementById('invite-msg').textContent = `You're invited to "${space.emoji} ${space.name}"`;
-      document.getElementById('invite-sub').textContent = 'Enter your email to join this space on fold.';
+function hideSplash(){const el=document.getElementById('loading');el.style.opacity='0';setTimeout(()=>el.style.display='none',300);}
+
+/* ONBOARDING */
+function obNext(){
+  const cur=document.getElementById('ob'+obIdx);
+  cur.classList.remove('active');cur.classList.add('exit');
+  setTimeout(()=>cur.classList.remove('exit'),400);
+  obIdx++;
+  if(obIdx>=3){skipOb();return;}
+  document.getElementById('ob'+obIdx).classList.add('active');
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>d.classList.toggle('active',i===obIdx));
+  if(obIdx===2)document.getElementById('ob-btn').textContent='Get started';
+}
+function skipOb(){localStorage.setItem('fold_ob','1');showScreen('auth-screen');}
+
+/* AUTH */
+async function doAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email');return;}
+  const btn=document.getElementById('auth-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  const redir=pendingInvite?`${location.origin}${location.pathname}?invite=${pendingInvite}`:`${location.origin}${location.pathname}`;
+  const{error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:redir}});
+  btn.disabled=false;btn.textContent='Send magic link';
+  if(error){toast('Error: '+error.message);return;}
+  document.getElementById('sent-email').textContent=email;
+  showScreen('magic-screen');
+}
+
+async function doInviteAuth(){
+  const email=document.getElementById('inv-email').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email');return;}
+  const redir=`${location.origin}${location.pathname}?invite=${pendingInvite}`;
+  const{error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:redir}});
+  if(error){toast('Error: '+error.message);return;}
+  toast('Magic link sent — check your email ✦');
+}
+
+async function doSignOut(){if(!confirm('Sign out?'))return;await db.auth.signOut();}
+
+/* INVITE PAGE */
+async function loadInvitePage(id){
+  pendingInvite=id;
+  try{
+    const{data}=await db.from('spaces').select('name,emoji,description').eq('id',id).single();
+    if(data){
+      document.getElementById('inv-emoji').textContent=data.emoji||'🌿';
+      document.getElementById('inv-name').textContent=data.name;
+      document.getElementById('inv-desc').textContent=data.description||'Join this shared memory space on fold.';
     }
-  } catch(e) {}
-  document.getElementById('loading').style.display = 'none';
+  }catch(e){}
   showScreen('invite-screen');
 }
 
-// ── AUTH ──
-async function handleAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  if (!email) return toast('Enter your email');
-  const btn = document.getElementById('auth-btn');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  const { error } = await db.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: window.location.origin }
-  });
-  btn.disabled = false; btn.textContent = 'Send magic link';
-  if (error) { toast('Something went wrong'); return; }
-  document.getElementById('sent-email-display').textContent = email;
-  showScreen('magic-sent-screen');
+async function acceptInvite(id){
+  if(!USER)return;
+  try{
+    const{data:ex}=await db.from('space_members').select('id').eq('space_id',id).eq('user_id',USER.id).maybeSingle();
+    if(!ex)await db.from('space_members').insert({space_id:id,user_id:USER.id,role:'member'});
+  }catch(e){console.error('invite',e);}
 }
 
-async function handleInviteAuth() {
-  const email = document.getElementById('invite-email').value.trim();
-  if (!email) return toast('Enter your email');
-  await db.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: window.location.origin + '?invite=' + pendingInviteSpaceId }
-  });
-  toast('Magic link sent — check your email');
-}
-
-async function signOut() {
-  await db.auth.signOut();
-}
-
-// ── APP ──
-async function showApp() {
-  setJournalHeader();
-  buildEmojiPicker();
+/* SHOW APP */
+async function showApp(){
+  buildEmojiGrid();setHeader();
   showScreen('app-screen');
-  await loadJournalEntries();
-  await loadSpaces();
-  loadProfile();
+  loadProfile();loadJournal();loadSpaces();
 }
 
-function setJournalHeader() {
-  const now = new Date();
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('journal-date').textContent =
-    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-  const h = now.getHours();
-  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('journal-greeting').innerHTML = `<em>${greet}.</em><br>What's on your mind?`;
+function setHeader(){
+  const now=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('j-date').textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  const h=now.getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('j-greet').innerHTML=`<em>${g}.</em>`;
+  const init=(USER.email||'F').charAt(0).toUpperCase();
+  document.getElementById('p-av').textContent=init;
 }
 
-// ── TABS ──
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('tab-btn-' + name).classList.add('active');
+/* TABS */
+function switchTab(n){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  document.getElementById('tb-'+n).classList.add('active');
 }
 
-// ── FILES ──
-function handleFileSelect(event, context) {
-  const files = Array.from(event.target.files);
-  if (context === 'journal') {
-    journalFiles = [...journalFiles, ...files];
-    renderMediaPreview('quick-media-preview', journalFiles, 'journal');
-  } else {
-    spaceFiles = [...spaceFiles, ...files];
-    renderMediaPreview('space-media-preview', spaceFiles, 'space');
-  }
+function switchSpTab(m){
+  spTabMode=m;
+  document.querySelectorAll('.sp-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('spt-'+m).classList.add('active');
+  loadSpaces();
 }
 
-function renderMediaPreview(containerId, files, context) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  files.forEach((f, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'media-thumb-wrap';
-    const url = URL.createObjectURL(f);
-    const el = f.type.startsWith('video') ? document.createElement('video') : document.createElement('img');
-    el.src = url;
-    if (el.tagName === 'VIDEO') { el.muted = true; el.playsInline = true; }
-    const rm = document.createElement('button');
-    rm.className = 'remove-thumb';
-    rm.textContent = '×';
-    rm.onclick = () => {
-      if (context === 'journal') journalFiles.splice(i,1);
-      else spaceFiles.splice(i,1);
-      renderMediaPreview(containerId, context === 'journal' ? journalFiles : spaceFiles, context);
-    };
-    wrap.appendChild(el);
-    wrap.appendChild(rm);
-    container.appendChild(wrap);
-  });
-}
+/* NEW ENTRY */
+async function openNewEntry(forSpace){
+  entryFiles=[];voiceBlob=null;
+  document.getElementById('nem-ta').value='';
+  document.getElementById('nem-media').innerHTML='';
+  document.getElementById('nem-vbar').style.display='none';
+  document.getElementById('v-saved').style.display='none';
+  document.getElementById('v-btn').classList.remove('rec');
+  document.getElementById('v-btn').textContent='🎙️';
+  selSpace=forSpace&&curSpaceId?curSpaceId:'';
 
-// ── VOICE ──
-let voiceBlob = null;
-let spaceVoiceBlob = null;
+  const sel=document.getElementById('nem-space-sel');
+  sel.innerHTML='<div class="s-chip'+(selSpace===''?' sel':'')+'" data-id="" onclick="pickSpace(this,\'\')">🔒 Mine</div>';
 
-async function toggleVoice() {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    stopVoice(); return;
-  }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    voiceChunks = [];
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = e => voiceChunks.push(e.data);
-    mediaRecorder.onstop = () => {
-      voiceBlob = new Blob(voiceChunks, { type: 'audio/webm' });
-      stream.getTracks().forEach(t => t.stop());
-      document.getElementById('voice-indicator').classList.remove('active');
-      document.getElementById('voice-btn').textContent = '✅';
-      clearInterval(voiceTimerInterval);
-    };
-    mediaRecorder.start();
-    voiceSeconds = 0;
-    document.getElementById('voice-indicator').classList.add('active');
-    voiceTimerInterval = setInterval(() => {
-      voiceSeconds++;
-      const m = Math.floor(voiceSeconds/60), s = voiceSeconds%60;
-      document.getElementById('voice-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-    }, 1000);
-  } catch(e) { toast('Microphone not available'); }
-}
-
-function stopVoice() {
-  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-}
-
-// ── SAVE ENTRY ──
-async function saveEntry(spaceId = null) {
-  const isSpace = !!spaceId;
-  const textEl = document.getElementById(isSpace ? 'space-quick-text' : 'quick-text');
-  const text = textEl.value.trim();
-  const files = isSpace ? spaceFiles : journalFiles;
-  const voice = isSpace ? spaceVoiceBlob : voiceBlob;
-
-  if (!text && files.length === 0 && !voice) {
-    toast('Add something first'); return;
-  }
-
-  const saveBtn = document.querySelector(isSpace ? '#space-detail-screen .save-btn' : '#quick-entry-card .save-btn');
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
-
-  try {
-    // Upload media
-    const mediaUrls = [];
-    for (const file of files) {
-      const ext = file.name.split('.').pop();
-      const path = `${currentUser.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await db.storage.from('fold-media').upload(path, file);
-      if (!upErr) {
-        const { data: { publicUrl } } = db.storage.from('fold-media').getPublicUrl(path);
-        mediaUrls.push({ url: publicUrl, type: file.type.startsWith('video') ? 'video' : 'image', path });
-      }
-    }
-
-    // Upload voice
-    let voiceUrl = null;
-    if (voice) {
-      const path = `${currentUser.id}/voice-${Date.now()}.webm`;
-      const { error: vErr } = await db.storage.from('fold-media').upload(path, voice);
-      if (!vErr) {
-        const { data: { publicUrl } } = db.storage.from('fold-media').getPublicUrl(path);
-        voiceUrl = publicUrl;
-      }
-    }
-
-    const { data, error } = await db.from('entries').insert({
-      user_id: currentUser.id,
-      space_id: spaceId || null,
-      text: text || null,
-      media: mediaUrls.length ? mediaUrls : null,
-      voice_url: voiceUrl || null,
-      created_at: new Date().toISOString()
-    }).select().single();
-
-    if (error) throw error;
-
-    // Reset
-    textEl.value = '';
-    if (isSpace) { spaceFiles = []; spaceVoiceBlob = null; document.getElementById('space-media-preview').innerHTML = ''; }
-    else { journalFiles = []; voiceBlob = null; document.getElementById('quick-media-preview').innerHTML = ''; document.getElementById('voice-btn').textContent = '🎙️'; }
-
-    toast('Memory saved ✦');
-    if (isSpace) await loadSpaceEntries(spaceId);
-    else await loadJournalEntries();
-
-  } catch(e) {
-    toast('Could not save — try again');
-    console.error(e);
-  } finally {
-    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
-  }
-}
-
-function saveSpaceEntry() { saveEntry(currentSpaceId); }
-
-// ── LOAD ENTRIES ──
-async function loadJournalEntries() {
-  const { data: entries, error } = await db.from('entries')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .is('space_id', null)
-    .order('created_at', { ascending: false })
-    .limit(30);
-
-  const list = document.getElementById('journal-entries-list');
-  if (!entries || entries.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌿</div><div class="empty-state-text">Your story starts here</div><div class="empty-state-sub">Write your first memory above</div></div>`;
-    document.getElementById('stat-entries').textContent = '0';
-    return;
-  }
-  document.getElementById('stat-entries').textContent = entries.length;
-  list.innerHTML = entries.map(e => entryCardHTML(e)).join('');
-}
-
-async function loadSpaceEntries(spaceId) {
-  const { data: entries } = await db.from('entries')
-    .select('*')
-    .eq('space_id', spaceId)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  const list = document.getElementById('space-entries-list');
-  if (!entries || entries.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌿</div><div class="empty-state-text">No memories yet</div><div class="empty-state-sub">Add the first one above</div></div>`;
-    return;
-  }
-  list.innerHTML = entries.map(e => entryCardHTML(e)).join('');
-}
-
-function entryCardHTML(entry) {
-  const date = new Date(entry.created_at);
-  const timeStr = date.toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' · ' +
-    date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-  const mediaStrip = entry.media && entry.media.length
-    ? `<div class="entry-media-strip">${entry.media.slice(0,3).map(m =>
-        m.type === 'video'
-          ? `<video src="${m.url}" muted playsinline></video>`
-          : `<img src="${m.url}" loading="lazy">`
-      ).join('')}</div>` : '';
-  const voicePill = entry.voice_url
-    ? `<div class="voice-entry-pill" onclick="event.stopPropagation();playVoice('${entry.voice_url}')">🎙️ Voice note</div>` : '';
-  return `<div class="entry-card" onclick="showEntryDetail('${entry.id}')">
-    <div class="entry-meta"><span class="entry-time">${timeStr}</span></div>
-    ${entry.text ? `<div class="entry-text">${escHtml(entry.text)}</div>` : ''}
-    ${mediaStrip}${voicePill}
-  </div>`;
-}
-
-// ── ENTRY DETAIL ──
-async function showEntryDetail(entryId) {
-  currentEntryId = entryId;
-  const { data: entry } = await db.from('entries').select('*').eq('id', entryId).single();
-  if (!entry) return;
-
-  const date = new Date(entry.created_at);
-  const dateStr = date.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-
-  let html = `<div style="font-size:12px;color:var(--t3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.08em;">${dateStr}</div>`;
-  if (entry.text) html += `<div class="entry-detail-text">${escHtml(entry.text)}</div>`;
-  if (entry.media && entry.media.length) {
-    html += `<div class="entry-detail-media">`;
-    entry.media.forEach(m => {
-      html += m.type === 'video'
-        ? `<video src="${m.url}" controls playsinline></video>`
-        : `<img src="${m.url}" loading="lazy">`;
+  try{
+    const{data}=await db.from('space_members').select('space_id,spaces(id,name,emoji)').eq('user_id',USER.id);
+    (data||[]).forEach(m=>{
+      if(!m.spaces)return;
+      const c=document.createElement('div');
+      c.className='s-chip'+(selSpace===m.spaces.id?' sel':'');
+      c.dataset.id=m.spaces.id;
+      c.textContent=`${m.spaces.emoji||'🌿'} ${m.spaces.name}`;
+      c.onclick=()=>pickSpace(c,m.spaces.id);
+      sel.appendChild(c);
     });
-    html += `</div>`;
+  }catch(e){}
+
+  document.getElementById('modal-new-entry').classList.add('active');
+  setTimeout(()=>document.getElementById('nem-ta').focus(),350);
+}
+
+function closeNewEntry(){
+  if(mr&&mr.state==='recording')stopVoice();
+  document.getElementById('modal-new-entry').classList.remove('active');
+}
+
+function pickSpace(el,id){
+  selSpace=id;
+  document.querySelectorAll('.s-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+/* FILES */
+function addFiles(e){
+  entryFiles=[...entryFiles,...Array.from(e.target.files)];
+  renderStrip();e.target.value='';
+}
+
+function renderStrip(){
+  const s=document.getElementById('nem-media');s.innerHTML='';
+  entryFiles.forEach((f,i)=>{
+    const w=document.createElement('div');w.className='mthumb';
+    const url=URL.createObjectURL(f);
+    const el=f.type.startsWith('video')?document.createElement('video'):document.createElement('img');
+    el.src=url;if(el.tagName==='VIDEO'){el.muted=true;el.playsInline=true;}
+    const rm=document.createElement('button');rm.className='mthumb-rm';rm.textContent='×';
+    rm.onclick=()=>{entryFiles.splice(i,1);renderStrip();};
+    w.appendChild(el);w.appendChild(rm);s.appendChild(w);
+  });
+}
+
+/* VOICE */
+async function toggleVoice(){
+  if(mr&&mr.state==='recording'){stopVoice();return;}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    vChunks=[];
+    mr=new MediaRecorder(stream);
+    mr.ondataavailable=e=>vChunks.push(e.data);
+    mr.onstop=()=>{
+      voiceBlob=new Blob(vChunks,{type:'audio/webm'});
+      stream.getTracks().forEach(t=>t.stop());
+      document.getElementById('nem-vbar').style.display='none';
+      document.getElementById('v-saved').style.display='block';
+      document.getElementById('v-btn').classList.remove('rec');
+      document.getElementById('v-btn').textContent='✅';
+      clearInterval(vInt);
+    };
+    mr.start();vSecs=0;
+    document.getElementById('nem-vbar').style.display='flex';
+    document.getElementById('v-btn').classList.add('rec');
+    vInt=setInterval(()=>{
+      vSecs++;
+      const m=Math.floor(vSecs/60),s=vSecs%60;
+      document.getElementById('v-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+    },1000);
+  }catch(e){toast('Microphone not available');}
+}
+
+function stopVoice(){if(mr&&mr.state==='recording')mr.stop();clearInterval(vInt);}
+function previewVoice(){if(voiceBlob)new Audio(URL.createObjectURL(voiceBlob)).play();}
+
+/* SAVE ENTRY */
+async function saveEntry(){
+  const text=document.getElementById('nem-ta').value.trim();
+  if(!text&&entryFiles.length===0&&!voiceBlob){toast('Add something first');return;}
+  const btn=document.getElementById('sv-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const mediaUrls=[];
+    for(const f of entryFiles){
+      const ext=f.name.split('.').pop()||'jpg';
+      const path=`${USER.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const{error}=await db.storage.from('fold-media').upload(path,f);
+      if(!error){
+        const{data:{publicUrl}}=db.storage.from('fold-media').getPublicUrl(path);
+        mediaUrls.push({url:publicUrl,type:f.type.startsWith('video')?'video':'image'});
+      }
+    }
+    let voiceUrl=null;
+    if(voiceBlob){
+      const path=`${USER.id}/v-${Date.now()}.webm`;
+      const{error}=await db.storage.from('fold-media').upload(path,voiceBlob);
+      if(!error){const{data:{publicUrl}}=db.storage.from('fold-media').getPublicUrl(path);voiceUrl=publicUrl;}
+    }
+    const{error}=await db.from('entries').insert({
+      user_id:USER.id,space_id:selSpace||null,
+      text:text||null,media:mediaUrls.length?mediaUrls:null,voice_url:voiceUrl
+    });
+    if(error)throw error;
+    closeNewEntry();toast('Memory saved ✦');
+    if(selSpace&&curSpaceId===selSpace)loadSpaceEntries(curSpaceId);
+    loadJournal();
+  }catch(e){toast('Error: '+(e.message||'unknown'));console.error(e);}
+  finally{btn.disabled=false;btn.textContent='Save memory';}
+}
+
+/* JOURNAL */
+async function loadJournal(){
+  const grid=document.getElementById('j-grid');
+  const empty=document.getElementById('j-empty');
+  grid.innerHTML='';
+  const{data,error}=await db.from('entries').select('*').eq('user_id',USER.id).is('space_id',null).order('created_at',{ascending:false}).limit(40);
+  if(error){grid.innerHTML=`<p style="color:var(--red);padding:8px;font-size:13px">Error: ${error.message}</p>`;return;}
+  document.getElementById('st-mem').textContent=data?.length||0;
+  if(!data||data.length===0){grid.style.display='none';empty.style.display='block';return;}
+  empty.style.display='none';grid.style.display='';
+  grid.innerHTML=data.map((e,i)=>cardHTML(e,i)).join('');
+}
+
+function cardHTML(e,i=0){
+  const d=new Date(e.created_at);
+  const ts=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const delay=Math.min(i*0.04,0.4);
+  const img=e.media?.find(m=>m.type==='image');
+  const vid=!img&&e.media?.find(m=>m.type==='video');
+  const onclick=`showDetail('${e.id}')`;
+  if(img)return`<div class="m-card" style="animation-delay:${delay}s" onclick="${onclick}"><img class="m-img" src="${img.url}" loading="lazy"><div class="m-body">${e.text?`<div class="m-text">${esc(e.text)}</div>`:''}<div class="m-time">${ts}</div>${e.voice_url?`<div class="m-voice" onclick="event.stopPropagation();playA('${e.voice_url}')">🎙️ Voice note</div>`:''}</div></div>`;
+  if(vid)return`<div class="m-card" style="animation-delay:${delay}s" onclick="${onclick}"><video class="m-img" src="${vid.url}" muted playsinline></video><div class="m-body">${e.text?`<div class="m-text">${esc(e.text)}</div>`:''}<div class="m-time">${ts}</div></div></div>`;
+  return`<div class="block-card" style="animation-delay:${delay}s" onclick="${onclick}">${e.text?`<div class="block-text">${esc(e.text)}</div>`:''}<div class="block-time">${ts}</div>${e.voice_url?`<div class="m-voice" onclick="event.stopPropagation();playA('${e.voice_url}')">🎙️ Voice note</div>`:''}</div>`;
+}
+
+/* ENTRY DETAIL */
+async function showDetail(id){
+  curEntryId=id;
+  const{data:e}=await db.from('entries').select('*').eq('id',id).single();
+  if(!e)return;
+  const d=new Date(e.created_at);
+  const ds=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let html=`<div class="detail-date">${ds}</div>`;
+  if(e.text)html+=`<div class="detail-text">${esc(e.text)}</div>`;
+  if(e.media?.length){
+    html+=`<div class="detail-grid">`;
+    e.media.forEach(m=>{html+=m.type==='video'?`<video src="${m.url}" controls playsinline style="border-radius:12px;width:100%"></video>`:`<img src="${m.url}" style="border-radius:12px;width:100%;aspect-ratio:1;object-fit:cover" loading="lazy">`;});
+    html+=`</div>`;
   }
-  if (entry.voice_url) {
-    html += `<div class="voice-entry-pill" onclick="playVoice('${entry.voice_url}')">🎙️ Play voice note</div>`;
+  if(e.voice_url)html+=`<div class="m-voice" onclick="playA('${e.voice_url}')" style="cursor:pointer">🎙️ Play voice note</div>`;
+  document.getElementById('m-detail-body').innerHTML=html;
+  document.getElementById('del-btn').onclick=()=>delEntry(id,!e.space_id);
+  openModal('m-detail');
+}
+
+async function delEntry(id,isJournal){
+  if(!confirm('Delete this memory?'))return;
+  await db.from('entries').delete().eq('id',id);
+  closeModal('m-detail');toast('Memory removed');
+  if(isJournal)loadJournal();else loadSpaceEntries(curSpaceId);
+}
+
+/* SPACES */
+async function loadSpaces(){
+  const list=document.getElementById('sp-list');list.innerHTML='';
+  const{data}=await db.from('space_members').select('role,space_id,spaces(id,name,emoji,description,created_by)').eq('user_id',USER.id);
+  let spaces=(data||[]).map(m=>({...m.spaces,myRole:m.role})).filter(Boolean);
+  if(spTabMode==='mine')spaces=spaces.filter(s=>s.created_by===USER.id);
+  document.getElementById('st-sp').textContent=spaces.length;
+  if(!spaces.length){
+    list.innerHTML=`<div class="empty-state"><span class="empty-icon">🤝</span><div class="empty-title">No spaces yet</div><div class="empty-sub">Create one and invite someone you love</div></div>`;
+  } else {
+    for(const s of spaces){
+      const{count:mc}=await db.from('space_members').select('*',{count:'exact',head:true}).eq('space_id',s.id);
+      const{count:ec}=await db.from('entries').select('*',{count:'exact',head:true}).eq('space_id',s.id);
+      const isAdmin=s.created_by===USER.id||s.myRole==='admin';
+      const c=document.createElement('div');c.className='space-card';
+      c.innerHTML=`<div class="sp-icon">${s.emoji||'🌿'}</div>
+        <div class="sp-info">
+          <div class="sp-name">${esc(s.name)}${isAdmin?'<span class="sp-badge">Admin</span>':''}</div>
+          <div class="sp-meta">${mc||1} member${mc!==1?'s':''} · ${ec||0} memories</div>
+        </div><div class="sp-arrow">›</div>`;
+      c.onclick=()=>openSpaceDetail(s);list.appendChild(c);
+    }
   }
-
-  document.getElementById('entry-detail-content').innerHTML = html;
-  document.getElementById('delete-entry-btn').onclick = () => deleteEntry(entryId);
-  openModal('modal-entry-detail');
+  const nb=document.createElement('div');nb.className='space-card new-space-card';
+  nb.innerHTML=`<div class="sp-icon" style="background:transparent;border:1px dashed var(--border2);font-size:20px;color:inherit">+</div><div class="sp-info"><div class="sp-name" style="font-size:16px;font-family:var(--sans)">Create new space</div></div>`;
+  nb.onclick=()=>openModal('m-newspace');list.appendChild(nb);
 }
 
-async function deleteEntry(entryId) {
-  if (!confirm('Delete this memory?')) return;
-  await db.from('entries').delete().eq('id', entryId);
-  closeModal('modal-entry-detail');
-  toast('Memory removed');
-  if (currentSpaceId) await loadSpaceEntries(currentSpaceId);
-  else await loadJournalEntries();
+async function openSpaceDetail(s){
+  curSpaceId=s.id;curSpaceData=s;
+  const{data:me}=await db.from('space_members').select('role').eq('space_id',s.id).eq('user_id',USER.id).maybeSingle();
+  myRole=s.created_by===USER.id?'creator':(me?.role||'member');
+  document.getElementById('sd-name').textContent=`${s.emoji||''} ${s.name}`;
+  showScreen('space-detail-screen');
+  await loadSpaceEntries(s.id);
+  await loadMembers(s.id);
 }
 
-function playVoice(url) {
-  const audio = new Audio(url);
-  audio.play();
-}
+function closeSpaceDetail(){curSpaceId=null;curSpaceData=null;showScreen('app-screen');switchTab('spaces');}
 
-// ── SPACES ──
-async function loadSpaces() {
-  // Own spaces + joined spaces
-  const { data: memberships } = await db.from('space_members')
-    .select('space_id, spaces(id, name, emoji, created_by)')
-    .eq('user_id', currentUser.id);
-
-  const spaces = (memberships || []).map(m => m.spaces).filter(Boolean);
-  document.getElementById('stat-spaces').textContent = spaces.length;
-
-  const list = document.getElementById('spaces-list');
-  if (spaces.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🤝</div><div class="empty-state-text">No shared spaces yet</div><div class="empty-state-sub">Create one and invite someone</div></div>`;
+async function loadSpaceEntries(sid){
+  const grid=document.getElementById('sg-grid');grid.innerHTML='';
+  const{data}=await db.from('entries').select('*').eq('space_id',sid).order('created_at',{ascending:false}).limit(60);
+  const{count:mc}=await db.from('space_members').select('*',{count:'exact',head:true}).eq('space_id',sid);
+  document.getElementById('sd-sub').textContent=`${mc||1} member${mc!==1?'s':''} · ${data?.length||0} memories`;
+  if(!data||!data.length){
+    grid.style.columns='unset';
+    grid.innerHTML=`<div class="empty-state"><span class="empty-icon">📷</span><div class="empty-title">No memories yet</div><div class="empty-sub">Add the first one above</div></div>`;
     return;
   }
-
-  // Get entry counts
-  list.innerHTML = '';
-  for (const s of spaces) {
-    const { count } = await db.from('entries').select('*', { count: 'exact', head: true }).eq('space_id', s.id);
-    const card = document.createElement('div');
-    card.className = 'space-card';
-    card.innerHTML = `
-      <div class="space-icon">${s.emoji || '🌿'}</div>
-      <div class="space-info">
-        <div class="space-name">${escHtml(s.name)}</div>
-        <div class="space-members">${s.created_by === currentUser.id ? 'Created by you' : 'Shared space'}</div>
-      </div>
-      <div class="space-count">${count || 0} memories</div>`;
-    card.onclick = () => openSpaceDetail(s.id, s.name, s.emoji);
-    list.appendChild(card);
-  }
+  grid.style.columns='';
+  grid.innerHTML=data.map((e,i)=>cardHTML(e,i)).join('');
 }
 
-async function openSpaceDetail(spaceId, name, emoji) {
-  currentSpaceId = spaceId;
-  currentSpaceName = name;
-  document.getElementById('space-detail-name').textContent = `${emoji || ''} ${name}`;
-  showScreen('space-detail-screen');
-  await loadSpaceEntries(spaceId);
-}
-
-function closeSpaceDetail() {
-  currentSpaceId = null;
-  showScreen('app-screen');
-  switchTab('spaces');
-}
-
-async function createSpace() {
-  const name = document.getElementById('new-space-name').value.trim();
-  if (!name) { toast('Give your space a name'); return; }
-
-  const { data: space, error } = await db.from('spaces').insert({
-    name, emoji: selectedEmoji, created_by: currentUser.id
-  }).select().single();
-
-  if (error) { toast('Could not create space'); return; }
-
-  // Add creator as member
-  await db.from('space_members').insert({ space_id: space.id, user_id: currentUser.id });
-
-  closeModal('modal-new-space');
-  document.getElementById('new-space-name').value = '';
-  toast('Space created ✦');
-  await loadSpaces();
-  openSpaceDetail(space.id, space.name, space.emoji);
-}
-
-// ── INVITE ──
-async function shareInviteLink() {
-  const link = `${window.location.origin}?invite=${currentSpaceId}`;
-  if (navigator.share) {
-    await navigator.share({ title: `Join "${currentSpaceName}" on fold.`, url: link });
-  } else {
-    await navigator.clipboard.writeText(link);
-    toast('Invite link copied!');
-  }
-}
-
-async function acceptInvite(spaceId) {
-  // Check not already a member
-  const { data: existing } = await db.from('space_members')
-    .select('id').eq('space_id', spaceId).eq('user_id', currentUser.id).single();
-  if (!existing) {
-    await db.from('space_members').insert({ space_id: spaceId, user_id: currentUser.id });
-    toast('Joined the space!');
-  }
-}
-
-// ── PROFILE ──
-function loadProfile() {
-  const email = currentUser.email || '';
-  const initial = email.charAt(0).toUpperCase();
-  document.getElementById('profile-avatar').textContent = initial;
-  document.getElementById('profile-name').textContent = email.split('@')[0];
-  document.getElementById('profile-email').textContent = email;
-}
-
-// ── MODALS & UI ──
-function showNewSpaceModal() { openModal('modal-new-space'); }
-function showNewEntryModal() {
-  document.getElementById('quick-text').focus();
-  document.getElementById('quick-entry-card').scrollIntoView({ behavior:'smooth' });
-}
-
-function buildEmojiPicker() {
-  const picker = document.getElementById('emoji-picker');
-  picker.innerHTML = EMOJIS.map(e =>
-    `<div class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="selectEmoji('${e}')">${e}</div>`
-  ).join('');
-}
-
-function selectEmoji(e) {
-  selectedEmoji = e;
-  document.querySelectorAll('.emoji-opt').forEach(el => el.classList.toggle('selected', el.textContent === e));
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// Close modal on backdrop tap
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('active');
+async function loadMembers(sid){
+  const{data}=await db.from('space_members').select('user_id,role,joined_at').eq('space_id',sid);
+  const canAdmin=myRole==='creator'||myRole==='admin';
+  const creatorId=curSpaceData?.created_by;
+  let html=`<div class="members-panel"><div class="mem-title">Members (${data?.length||0})</div>`;
+  (data||[]).forEach(m=>{
+    const isCreator=m.user_id===creatorId,isMe=m.user_id===USER.id;
+    const role=isCreator?'Creator':m.role==='admin'?'Admin':'Member';
+    const init=isMe?((USER.email||'?').charAt(0).toUpperCase()):'?';
+    html+=`<div class="mem-row">
+      <div class="mem-av">${init}</div>
+      <div class="mem-info"><div class="mem-name">${isMe?'You ('+USER.email.split('@')[0]+')':m.user_id.slice(0,12)+'...'}</div><div class="mem-role">${role}</div></div>
+      ${canAdmin&&!isMe&&!isCreator?`<span class="mem-act promote" onclick="promoteMember('${m.user_id}','${m.role}','${sid}')">${m.role==='admin'?'Demote':'Make admin'}</span><span class="mem-act" onclick="removeMember('${m.user_id}','${sid}')">Remove</span>`:''}
+      ${isMe&&!isCreator?`<span class="mem-act" onclick="leaveSpace('${sid}')">Leave</span>`:''}
+    </div>`;
   });
-});
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  html+='</div>';
+  document.getElementById('members-wrap').innerHTML=html;
 }
 
-function showNotifInfo() { toast('Notifications coming soon'); }
-
-// ── TOAST ──
-let toastTimeout;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => el.classList.remove('show'), 2800);
+async function promoteMember(uid,role,sid){
+  const nr=role==='admin'?'member':'admin';
+  await db.from('space_members').update({role:nr}).eq('space_id',sid).eq('user_id',uid);
+  toast(nr==='admin'?'Promoted to admin':'Demoted to member');
+  loadMembers(sid);
 }
 
-function escHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+async function removeMember(uid,sid){
+  if(!confirm('Remove this member?'))return;
+  await db.from('space_members').delete().eq('space_id',sid).eq('user_id',uid);
+  toast('Member removed');loadMembers(sid);
 }
 
-// ── START ──
+async function leaveSpace(sid){
+  if(!confirm('Leave this space?'))return;
+  await db.from('space_members').delete().eq('space_id',sid).eq('user_id',USER.id);
+  toast('Left the space');closeSpaceDetail();loadSpaces();
+}
+
+function showSpaceMenu(){
+  const canAdmin=myRole==='creator'||myRole==='admin';
+  const items=[{icon:'🔗',label:'Copy invite link',fn:'shareInvite()'}];
+  if(canAdmin)items.push({icon:'👥',label:'View members',fn:'document.getElementById("members-wrap").scrollIntoView({behavior:"smooth"});closeSheet()'});
+  if(myRole!=='creator')items.push({icon:'🚪',label:'Leave space',fn:`leaveSpace('${curSpaceId}')`,d:true});
+  if(myRole==='creator')items.push({icon:'🗑️',label:'Delete space',fn:`deleteSpace('${curSpaceId}')`,d:true});
+  showSheet(items);
+}
+
+async function deleteSpace(sid){
+  closeSheet();if(!confirm('Delete this space and all memories? Cannot be undone.'))return;
+  await db.from('entries').delete().eq('space_id',sid);
+  await db.from('space_members').delete().eq('space_id',sid);
+  await db.from('spaces').delete().eq('id',sid);
+  toast('Space deleted');closeSpaceDetail();loadSpaces();
+}
+
+async function shareInvite(){
+  const link=`${location.origin}${location.pathname}?invite=${curSpaceId}`;
+  try{
+    if(navigator.share)await navigator.share({title:`Join "${curSpaceData?.name}" on fold.`,url:link});
+    else{await navigator.clipboard.writeText(link);toast('Invite link copied!');}
+  }catch(e){try{await navigator.clipboard.writeText(link);}catch(e2){}toast('Invite link copied!');}
+}
+
+/* CREATE SPACE */
+function buildEmojiGrid(){
+  document.getElementById('em-grid').innerHTML=EMOJIS.map(e=>`<div class="emo${e===selEmoji?' sel':''}" onclick="pickEmoji(this,'${e}')">${e}</div>`).join('');
+}
+function pickEmoji(el,e){selEmoji=e;document.querySelectorAll('.emo').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+
+async function createSpace(){
+  const name=document.getElementById('ns-name').value.trim();
+  if(!name){toast('Give your space a name');return;}
+  const desc=document.getElementById('ns-desc').value.trim();
+  const{data:sp,error}=await db.from('spaces').insert({name,emoji:selEmoji,description:desc||null,created_by:USER.id}).select().single();
+  if(error){toast('Error: '+error.message);return;}
+  await db.from('space_members').insert({space_id:sp.id,user_id:USER.id,role:'admin'});
+  closeModal('m-newspace');
+  document.getElementById('ns-name').value='';document.getElementById('ns-desc').value='';
+  toast('Space created ✦');await loadSpaces();openSpaceDetail(sp);
+}
+
+/* PROFILE */
+function loadProfile(){
+  const e=USER.email||'';const i=e.charAt(0).toUpperCase();
+  document.getElementById('p-avatar').textContent=i;
+  document.getElementById('p-name').textContent=e.split('@')[0];
+  document.getElementById('p-email').textContent=e;
+}
+
+/* ACTION SHEET */
+function showSheet(items){
+  const inner=document.getElementById('asheet-inner');
+  inner.innerHTML='<div class="ahandle"></div>';
+  items.forEach(a=>{
+    const el=document.createElement('div');el.className='aitem'+(a.d?' danger':'');
+    el.innerHTML=`<span class="aicon">${a.icon}</span>${a.label}`;
+    el.onclick=()=>{closeSheet();setTimeout(()=>eval(a.fn),150);};
+    inner.appendChild(el);
+  });
+  const c=document.createElement('div');c.className='acancel';c.textContent='Cancel';c.onclick=closeSheet;
+  inner.appendChild(c);
+  document.getElementById('asheet').classList.add('active');
+}
+function closeSheet(){document.getElementById('asheet').classList.remove('active');}
+document.getElementById('asheet').addEventListener('click',e=>{if(e.target===document.getElementById('asheet'))closeSheet();});
+
+/* MODALS */
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+document.querySelectorAll('.modal-ov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');});});
+
+/* SCREENS */
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* UTILS */
+function playA(url){new Audio(url).play();}
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+let tTimer;
+function toast(msg){const el=document.getElementById('t-el');el.textContent=msg;el.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('show'),2800);}
+
 init();
 </script>
 </body>
